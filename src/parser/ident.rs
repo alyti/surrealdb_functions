@@ -3,7 +3,7 @@ use nom::{
     branch::alt,
     bytes::complete::{escaped_transform, is_not, tag, take_while1},
     character::complete::char,
-    combinator::{recognize, value},
+    combinator::value,
     multi::separated_list1,
     sequence::delimited,
     IResult,
@@ -58,16 +58,6 @@ impl Display for Ident {
 
 pub fn ident(i: &str) -> IResult<&str, Ident> {
     let (i, v) = ident_raw(i)?;
-    Ok((i, Ident::from(v)))
-}
-
-pub fn plain(i: &str) -> IResult<&str, Ident> {
-    let (i, v) = take_while1(val_char)(i)?;
-    Ok((i, Ident::from(v)))
-}
-
-pub fn multi(i: &str) -> IResult<&str, Ident> {
-    let (i, v) = recognize(separated_list1(tag("::"), take_while1(val_char)))(i)?;
     Ok((i, Ident::from(v)))
 }
 

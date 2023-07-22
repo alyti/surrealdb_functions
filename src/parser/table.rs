@@ -1,10 +1,9 @@
 use super::{
-    common::commas,
     escape::escape_ident,
     fmt::Fmt,
     ident::{ident_raw, Ident},
 };
-use nom::{multi::separated_list1, IResult};
+use nom::IResult;
 use std::{
     fmt::{self, Display, Formatter},
     ops::Deref,
@@ -31,11 +30,6 @@ impl Display for Tables {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         Display::fmt(&Fmt::comma_separated(&self.0), f)
     }
-}
-
-pub fn tables(i: &str) -> IResult<&str, Tables> {
-    let (i, v) = separated_list1(commas, table)(i)?;
-    Ok((i, Tables(v)))
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq, PartialOrd, Hash)]

@@ -1,7 +1,7 @@
 use nom::{
     bytes::complete::{tag, tag_no_case, take_until},
     character::complete::{char, multispace0},
-    multi::{many1, separated_list0},
+    multi::{separated_list0, separated_list1},
     IResult,
 };
 
@@ -18,6 +18,8 @@ use common::{closebraces, commas, openbraces};
 use ident::{ident, Ident};
 use kind::{kind, Kind};
 
+use self::common::colons;
+
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct DefineFunctionStatement {
     pub comments: Vec<String>,
@@ -33,7 +35,8 @@ impl std::hash::Hash for DefineFunctionStatement {
 
 pub fn functions(i: &str) -> IResult<&str, Vec<DefineFunctionStatement>> {
     let (i, _) = multispace0(i)?;
-    let (i, v) = many1(function)(i)?;
+    let (i, v) = separated_list1(colons, function)(i)?;
+    let (i, _) = colons(i)?;
     Ok((i, v))
 }
 
@@ -167,13 +170,13 @@ DEFINE FUNCTION fn::relation_exists::nested(
 -- This indicates that it's a custom function
 DEFINE FUNCTION fn::greet($name: string) {
     RETURN "Hello, " + $name + "!";
-}
+};
 
 // It is necessary to prefix the name of your function with "fn::"
 // This indicates that it's a custom function
 DEFINE FUNCTION fn::greet($name: string) {
     RETURN "Hello, " + $name + "!";
-}
+};
 
 # A different comment style
 DEFINE FUNCTION fn::relation_exists::nested(
