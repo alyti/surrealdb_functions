@@ -1,0 +1,10 @@
+[package]
+name = "surrealdb_functions"
+description = "procmacro for surrealdb functions (fn::*)"
+version = "0.0.1"
+edition = "2021"
+author = "alyti"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+nom = "7.1.3"
