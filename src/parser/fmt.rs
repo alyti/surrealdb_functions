@@ -2,7 +2,7 @@ use std::cell::Cell;
 use std::fmt::{self, Display, Formatter};
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 
-/// Implements fmt::Display by calling formatter on contents.
+/// Implements `fmt::Display` by calling formatter on contents.
 pub struct Fmt<T, F> {
     contents: Cell<Option<T>>,
     formatter: F,
@@ -145,7 +145,7 @@ impl PrettyGuard {
             if increment >= 0 {
                 indent.fetch_add(increment as u32, Ordering::Relaxed);
             } else {
-                indent.fetch_sub(increment.unsigned_abs() as u32, Ordering::Relaxed);
+                indent.fetch_sub(u32::from(increment.unsigned_abs()), Ordering::Relaxed);
             }
         });
         NEW_LINE.with(|new_line| new_line.store(true, Ordering::Relaxed));

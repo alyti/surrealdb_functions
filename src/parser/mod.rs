@@ -68,8 +68,8 @@ fn function(i: &str) -> IResult<&str, DefineFunctionStatement> {
     Ok((
         i,
         DefineFunctionStatement {
-            comments: comments.iter().map(|s| s.to_string()).collect(),
-            name: name.iter().map(|s| s.to_string()).collect(),
+            comments: comments.iter().map(|s| (*s).to_string()).collect(),
+            name: name.iter().map(|s| (*s).to_string()).collect(),
             args,
         },
     ))

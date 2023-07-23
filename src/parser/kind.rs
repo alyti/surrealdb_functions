@@ -72,7 +72,7 @@ impl Display for Kind {
             Kind::Point => f.write_str("point"),
             Kind::String => f.write_str("string"),
             Kind::Uuid => f.write_str("uuid"),
-            Kind::Option(k) => write!(f, "option<{}>", k),
+            Kind::Option(k) => write!(f, "option<{k}>"),
             Kind::Record(k) => match k {
                 k if k.is_empty() => write!(f, "record"),
                 k => write!(f, "record<{}>", Fmt::verbar_separated(k)),
