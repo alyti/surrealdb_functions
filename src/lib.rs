@@ -25,6 +25,7 @@ fn include_fn_impl(input: IncludeFnArgs) -> TokenStream2 {
     let bootstrap = bootstrap_for_files(&input).unwrap();
     let functions = build_mod_tree(&input).unwrap();
 
+    // eprintln!("{}", functions.to_string());
     quote! {
         #bootstrap
 
@@ -224,14 +225,14 @@ impl Kind {
     fn to_tokens(&self) -> TokenStream2 {
         // TODO: These are best guess only, still need to test them
         match self {
-            Kind::Bool => quote! { impl Into < ::surrealdb::sql::Bool > },
+            Kind::Bool => quote! { impl Into < bool > },
             Kind::Bytes => quote! { impl Into < ::surrealdb::sql::Bytes > },
-            Kind::Datetime => quote! { impl Into < ::surrealdb::sql::DateTime > },
+            Kind::Datetime => quote! { impl Into < ::surrealdb::sql::Datetime > },
             Kind::Duration => quote! { impl Into < ::surrealdb::sql::Duration > },
             Kind::Float | Kind::Int | Kind::Decimal | Kind::Number => {
                 quote! { impl Into < ::surrealdb::sql::Number > }
             }
-            Kind::String => quote! { impl Into< String > },
+            Kind::String => quote! { impl Into< ::surrealdb::sql::Strand > },
             Kind::Uuid => quote! { impl Into < ::surrealdb::sql::Uuid > },
             Kind::Record(_) => quote! { impl Into < ::surrealdb::sql::Thing > },
             Kind::Point | Kind::Geometry(_) => quote! { impl Into < ::surrealdb::sql::Geometry > },
@@ -239,12 +240,15 @@ impl Kind {
                 let nested = nested.to_tokens();
                 quote! { Option < #nested > }
             }
-            Kind::Any | Kind::Object | Kind::Either(_) => {
+            Kind::Any | Kind::Either(_) => {
+                // TODO: Either probably needs to be resolved better than throwing it all into Value
                 quote! { impl Into < ::surrealdb::sql::Value > }
             }
-            Kind::Set(nested, _) | Kind::Array(nested, _) => {
-                let nested = nested.to_tokens();
-                quote! { Vec< #nested > }
+            Kind::Object => {
+                quote! { impl Into < ::surrealdb::sql::Object >  }
+            }
+            Kind::Set(_, _) | Kind::Array(_, _) => {
+                quote! { impl Into < ::surrealdb::sql::Array >  }
             }
         }
     }

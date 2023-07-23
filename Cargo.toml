@@ -1,7 +1,7 @@
 [package]
 name = "surrealdb_functions"
 description = "procmacro for surrealdb functions (fn::*)"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2021"
 authors = ["alyti <alticodes@gmail.com>"]
 license = "MIT OR Apache-2.0"
@@ -19,7 +19,9 @@ quote = "1.0.32"
 syn = "2.0.27"
 
 [dev-dependencies]
+chrono = "0.4.26"
 surrealdb = { git = "https://github.com/surrealdb/surrealdb", branch = "main", default-features = false, features = [
     "kv-mem",
 ] }
 tokio = { version = "1.29.1", features = ["macros", "rt"] }
+uuid = "1.4.1"
