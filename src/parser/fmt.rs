@@ -8,7 +8,7 @@ pub struct Fmt<T, F> {
     formatter: F,
 }
 
-impl<T, F: Fn(T, &mut Formatter) -> fmt::Result> Fmt<T, F> {
+impl<T, F: Fn(T, &mut Formatter<'_>) -> fmt::Result> Fmt<T, F> {
     pub fn new(t: T, formatter: F) -> Self {
         Self {
             contents: Cell::new(Some(t)),
@@ -17,7 +17,7 @@ impl<T, F: Fn(T, &mut Formatter) -> fmt::Result> Fmt<T, F> {
     }
 }
 
-impl<T, F: Fn(T, &mut Formatter) -> fmt::Result> Display for Fmt<T, F> {
+impl<T, F: Fn(T, &mut Formatter<'_>) -> fmt::Result> Display for Fmt<T, F> {
     /// fmt is single-use only.
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let contents = self
@@ -28,7 +28,7 @@ impl<T, F: Fn(T, &mut Formatter) -> fmt::Result> Display for Fmt<T, F> {
     }
 }
 
-impl<I: IntoIterator<Item = T>, T: Display> Fmt<I, fn(I, &mut Formatter) -> fmt::Result> {
+impl<I: IntoIterator<Item = T>, T: Display> Fmt<I, fn(I, &mut Formatter<'_>) -> fmt::Result> {
     /// Formats values with a comma and a space separating them.
     pub fn comma_separated(into_iter: I) -> Self {
         Self::new(into_iter, fmt_comma_separated)
@@ -42,7 +42,7 @@ impl<I: IntoIterator<Item = T>, T: Display> Fmt<I, fn(I, &mut Formatter) -> fmt:
 
 fn fmt_comma_separated<T: Display, I: IntoIterator<Item = T>>(
     into_iter: I,
-    f: &mut Formatter,
+    f: &mut Formatter<'_>,
 ) -> fmt::Result {
     for (i, v) in into_iter.into_iter().enumerate() {
         if i > 0 {
@@ -55,7 +55,7 @@ fn fmt_comma_separated<T: Display, I: IntoIterator<Item = T>>(
 
 fn fmt_verbar_separated<T: Display, I: IntoIterator<Item = T>>(
     into_iter: I,
-    f: &mut Formatter,
+    f: &mut Formatter<'_>,
 ) -> fmt::Result {
     for (i, v) in into_iter.into_iter().enumerate() {
         if i > 0 {
@@ -154,7 +154,7 @@ impl PrettyGuard {
 
 impl Drop for PrettyGuard {
     fn drop(&mut self) {
-        Self::raw(-self.increment)
+        Self::raw(-self.increment);
     }
 }
 

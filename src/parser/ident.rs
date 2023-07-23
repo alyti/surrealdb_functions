@@ -46,12 +46,12 @@ impl Deref for Ident {
 impl Ident {
     /// Convert the Ident to a raw String
     pub fn to_raw(&self) -> String {
-        self.0.to_string()
+        self.0.clone()
     }
 }
 
 impl Display for Ident {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         Display::fmt(&escape_ident(&self.0), f)
     }
 }

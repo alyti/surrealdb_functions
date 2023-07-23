@@ -57,7 +57,7 @@ impl From<&Kind> for Box<Kind> {
 }
 
 impl Display for Kind {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Kind::Any => f.write_str("any"),
             Kind::Bool => f.write_str("bool"),

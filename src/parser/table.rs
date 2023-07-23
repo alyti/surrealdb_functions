@@ -27,7 +27,7 @@ impl Deref for Tables {
 }
 
 impl Display for Tables {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         Display::fmt(&Fmt::comma_separated(&self.0), f)
     }
 }
@@ -61,7 +61,7 @@ impl Deref for Table {
 }
 
 impl Display for Table {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         Display::fmt(&escape_ident(&self.0), f)
     }
 }

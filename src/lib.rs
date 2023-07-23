@@ -1,4 +1,3 @@
-
 mod file;
 mod parser;
 
@@ -51,7 +50,7 @@ impl Alias {
 }
 
 impl Parse for Alias {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: syn::parse::ParseStream<'_>) -> syn::Result<Self> {
         // Right now we only support ident `is`, prefix notation `prefix_$` and suffix notation `$_suffix`.
         // $ is treated as substituting the name of the function, but syn will not parse it as an ident, instead its punctuation, so we have to handle it ourselves.
         let ident: Option<Ident> = input.parse()?;
@@ -100,7 +99,7 @@ impl IncludeFnArgs {
 }
 
 impl Parse for IncludeFnArgs {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: syn::parse::ParseStream<'_>) -> syn::Result<Self> {
         let mut paths = HashSet::new();
         let mut driver = None;
         let mut datastore = None;
