@@ -1,20 +1,88 @@
+//! [![github]](https://github.com/alyti/surrealql_functions)&ensp;[![crates-io]](https://crates.io/crates/surrealql_functions)&ensp;[![docs-rs]](crate)
+//!
+//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&labelColor=555555&logo=github
+//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&labelColor=555555&logo=rust
+//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&labelColor=555555&logo=docs.rs
+//! 
+//! <br>
+//! 
+//! SurrealQL Functions is a procedural macro that allows you to include functions from SurrealQL files into your Rust project.
+//! 
+//! Check the [`surrealdb_functions::include_fn`] macro for more information.
+//! 
+//! [`surrealdb_functions::include_fn`]: macro.include_fn.html
 mod file;
 mod parser;
 
-use nom::combinator::all_consuming;
-use parser::{kind::Kind, DefineFunctionStatement};
 use proc_macro::TokenStream;
-use proc_macro2::{Ident, Literal, Span, TokenStream as TokenStream2};
-use proc_macro_error::{abort, proc_macro_error};
-use quote::quote;
-use std::collections::HashSet;
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     error::Error,
     path::{Path, PathBuf},
 };
+
+use nom::combinator::all_consuming;
+use proc_macro2::{Ident, Literal, Span, TokenStream as TokenStream2};
+use proc_macro_error::{abort, proc_macro_error};
+use quote::quote;
 use syn::{parse::Parse, parse_macro_input};
 
+use parser::{kind::Kind, DefineFunctionStatement};
+
+
+
+/// Include functions from .surql files and generate wrappers for them.
+///
+/// This function parses a list of .surql files and generates a module containing functions for each function defined in the files.
+/// 
+/// Output:
+/// - `stored_functions() -> String`: Returns a string containing all the functions defined in the included files.
+/// - `define_functions(db: &Surreal) -> Result<Response>`: Defines all the functions using the provided connection.
+/// - `async fn <name>(db: &Surreal, /* parsed arguments */) -> Result<Response>`: Defined functions from the .surql file.
+///   If a function has a comment above it, the comment will be used as the documentation for the function.
+///   <name> is the last part of the function's name that's transformed based on the driver and datastore arguments.
+///   If a function in the .surql file has a name that is more than one part, each part is treated as a module.
+///   For example, a function named `foo::bar` will be generated as `mod foo { async fn bar(/* ... */) } }`.
+/// 
+/// Arguments:
+/// - `driver as <alias>`: The alias to use for the driver functions. If not provided, the functions will not be generated.
+/// - `datastore as <alias>`: The alias to use for the datastore functions. If not provided, the functions will not be generated.
+/// - `[<path>]`: The path to the .surql file to include. If the path is a directory, all .surql files in the directory will be included.
+/// 
+/// <alias> can be one of the following:
+/// - `is` will not apply any changes to the method names.
+/// - `prefix_$`/`$_suffix` will replace `$` with function name, effectively prefixing/suffixing it (ex. `prefix_greet` / `greet_suffix`)
+/// 
+///
+/// # Example
+///
+/// ```
+/// # extern crate surrealdb;
+/// # extern crate tokio;
+/// #
+/// use surrealdb::{engine::local::Mem, Surreal, kvs::Datastore, dbs::Session};
+/// use surrealdb_functions::include_fn;
+/// 
+/// include_fn!{
+///     driver as is;
+///     "$CARGO_MANIFEST_DIR/tests/main.surql";
+/// }
+///
+/// #[tokio::main]
+/// async fn main() -> surrealdb::Result<()> {
+///     // In-memory database for testing
+///     let db = Surreal::new::<Mem>(()).await?;
+///     // Use the test namespace and database
+///     db.use_ns("test").use_db("test").await?;
+///     // Define the functions using the include_fn! macro defined functions
+///     define_functions(&db).await?.check()?;
+///     // Call the example functions
+///     dbg!(greet_but_with_number(&db, "driver", 10).await?.check()?);
+///     Ok(())
+/// }
+/// ```
+/// 
+/// More examples can be found in the [examples](examples) directory.
 #[proc_macro]
 #[proc_macro_error]
 pub fn include_fn(input: TokenStream) -> TokenStream {
@@ -93,8 +161,12 @@ struct IncludeFnArgs {
 impl IncludeFnArgs {
     fn transform_fn_name(&self, name: &str) -> (Option<Ident>, Option<Ident>) {
         (
-            self.driver.as_ref().map(|alias| Ident::new(&alias.transform(name), Span::call_site())),
-            self.datastore.as_ref().map(|alias| Ident::new(&alias.transform(name), Span::call_site()))
+            self.driver
+                .as_ref()
+                .map(|alias| Ident::new(&alias.transform(name), Span::call_site())),
+            self.datastore
+                .as_ref()
+                .map(|alias| Ident::new(&alias.transform(name), Span::call_site())),
         )
     }
 }
@@ -283,17 +355,17 @@ impl DefineFunctionStatement {
 
     fn params_to_variables(&self) -> TokenStream2 {
         // Build a Option<BTreeMap<String, Value>> for the variables
-        let mut out = quote! { 
+        let mut out = quote! {
             let mut variables: std::collections::BTreeMap<String, ::surrealdb::sql::Value> = ::std::collections::BTreeMap::new();
         };
         for (name, _) in &self.args {
             let key = name.to_string();
             let value = Ident::new(name, Span::call_site());
-            out.extend(quote! { 
+            out.extend(quote! {
                 variables.insert(#key.to_string(), ::surrealdb::sql::Value::from(#value.into()));
             });
         }
-        
+
         out
     }
 
@@ -411,7 +483,7 @@ fn bootstrap_for_files(args: &IncludeFnArgs) -> Result<TokenStream2, Box<dyn Err
 
     let (driver, datastore) = args.transform_fn_name("define_functions");
 
-    let mut tokens = quote!{
+    let mut tokens = quote! {
         #consts
 
         #[doc = "Returns a string containing all the functions defined in the included files."]
@@ -429,7 +501,7 @@ fn bootstrap_for_files(args: &IncludeFnArgs) -> Result<TokenStream2, Box<dyn Err
                 db.query(stored_functions()).await
             }
         });
-    } 
+    }
 
     if let Some(name) = datastore {
         tokens.extend(quote!{

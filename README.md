@@ -24,16 +24,17 @@ At least one of `driver/datastore` must be defined.
 * `driver` will generate regular `Surreal<C>` bindings.
 * `datastore` will generate bindings for the more low-level locally-available-only `surrealdb::kvs::Datastore`
 
-If both are defined, the parser will validate they don't conflictm. (ex. you can't have both be `as is`)
+If both are defined, the parser will validate they don't conflict. (ex. you can't have both be `as is`)
 
 Finally the last argument type is a file/directory path, if a directory is provided, it will be recursively resolved.
 
-At least one valid path argument is expected.
+At least one valid path argument is expected, but more can be supplied.
+All resolved are stored in a hashset internally so path duplication should be a non-issue.
 
 The docs.rs content is coming later, for now either read the source or ask me in surrealdb discord (same handle as on github).
 I am open to new feature/pull requests.
 
-# Crate notes
+## Crate notes
 
 This is a utility proc-macro for surrealdb, as such it expects presence of surrealdb in user's dependencies.
 However, this crate by itself, does not depend on surrealdb.
