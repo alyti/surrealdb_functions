@@ -1,4 +1,4 @@
-//! [![github]](https://github.com/alyti/surrealql_functions)&ensp;[![crates-io]](https://crates.io/crates/surrealql_functions)&ensp;[![docs-rs]](crate)
+//! [![github]](https://github.com/alyti/surrealdb_functions)&ensp;[![crates-io]](https://crates.io/crates/surrealdb_functions)&ensp;[![docs-rs]](crate)
 //!
 //! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&labelColor=555555&logo=github
 //! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&labelColor=555555&logo=rust
