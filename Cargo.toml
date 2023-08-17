@@ -23,5 +23,5 @@ chrono = "0.4.26"
 surrealdb = { git = "https://github.com/surrealdb/surrealdb", branch = "main", default-features = false, features = [
     "kv-mem",
 ] }
-tokio = { version = "1.30.0", features = ["macros", "rt"] }
+tokio = { version = "1.32.0", features = ["macros", "rt"] }
 uuid = "1.4.1"
