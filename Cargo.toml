@@ -19,7 +19,7 @@ quote = "1.0.32"
 syn = "2.0.27"
 
 [dev-dependencies]
-chrono = "0.4.26"
+chrono = "0.4.31"
 surrealdb = { git = "https://github.com/surrealdb/surrealdb", branch = "main", default-features = false, features = [
     "kv-mem",
 ] }
